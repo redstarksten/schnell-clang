@@ -1,0 +1,42 @@
+#!/usr/bin/python3.8
+import subprocess
+import sys
+
+dotest_path = '/home/bukandewa/tc-build/llvm-project/lldb/test/API/dotest.py'
+dotest_args_str = '-u;CXXFLAGS;-u;CFLAGS;--env;ARCHIVER=/usr/bin/ar;--env;OBJCOPY=/usr/bin/objcopy'
+arch = 'x86_64'
+executable = '/home/bukandewa/tc-build/Build/stage1/./bin/lldb'
+compiler = '/home/bukandewa/tc-build/Build/stage1/./bin/clang'
+dsymutil = '/home/bukandewa/tc-build/Build/stage1/./bin/dsymutil'
+filecheck = '/home/bukandewa/tc-build/Build/stage1/./bin/FileCheck'
+yaml2obj = '/home/bukandewa/tc-build/Build/stage1/./bin/yaml2obj'
+server = ''
+lldb_build_dir = '/home/bukandewa/tc-build/Build/stage1/lldb-test-build.noindex'
+lldb_build_intel_pt = "0"
+lldb_framework_dir = ""
+lldb_libs_dir = "/home/bukandewa/tc-build/Build/stage1/./lib"
+
+if __name__ == '__main__':
+    wrapper_args = sys.argv[1:]
+    dotest_args = dotest_args_str.split(';')
+    # Build dotest.py command.
+    cmd = [sys.executable, dotest_path]
+    cmd.extend(['--arch', arch])
+    cmd.extend(dotest_args)
+    cmd.extend(['--build-dir', lldb_build_dir])
+    cmd.extend(['--executable', executable])
+    cmd.extend(['--compiler', compiler])
+    cmd.extend(['--dsymutil', dsymutil])
+    cmd.extend(['--yaml2obj', yaml2obj])
+    cmd.extend(['--filecheck', filecheck])
+    cmd.extend(['--lldb-libs-dir', lldb_libs_dir])
+    if server:
+        cmd.extend(['--server', server])
+    if lldb_framework_dir:
+        cmd.extend(['--framework', lldb_framework_dir])
+    if lldb_build_intel_pt == "1":
+        cmd.extend(['--enable-plugin', 'intel-pt'])
+    cmd.extend(wrapper_args)
+    # Invoke dotest.py and return exit code.
+    print(' '.join(cmd))
+    sys.exit(subprocess.call(cmd))
